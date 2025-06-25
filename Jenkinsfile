@@ -38,9 +38,8 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo 'Cloning GitHub Repository...'
-                checkout scmGit(branches: [[name: '*/test-code-stage']],
-                    extensions: [],
-                    userRemoteConfigs: [[credentialsId: 'mlops', url: 'https://github.com/QuXiangjie/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo.git']])
+                checkout scmGit(branches: [[name: '*/test-code-stage']], extensions: [], userRemoteConfigs: [[credentialsId: 'mlops', url: 'https://github.com/QuXiangjie/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo.git']])
+                    
             }
         }
         stage('Lint Code') {
