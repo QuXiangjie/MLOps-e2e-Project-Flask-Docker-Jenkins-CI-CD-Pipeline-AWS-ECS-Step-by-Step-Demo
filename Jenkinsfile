@@ -30,13 +30,18 @@ pipeline {
         }
         stage('Test Code') {
             steps {
-                // Pytest code
                 script {
                     echo 'Testing Python Code...'
-                    sh "pytest tests/"
+                    sh '''
+                        python -m pip install --upgrade pip
+                        python -m pip install -r requirements.txt
+                        python -m pip install pytest
+                        pytest tests/
+                    '''
                 }
             }
         }
+
         stage('Trivy FS Scan') {
             steps {
                 // Trivy Filesystem Scan
