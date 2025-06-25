@@ -8,17 +8,16 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                // Clone Repository
-                script {
-                    echo 'Cloning GitHub Repository...'
-                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'mlops', url: 'https://github.com/QuXiangjie/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo.git']])
-                }
+                echo 'Cloning GitHub Repository...'
+                checkout scmGit(branches: [[name: '*/main']],
+                    extensions: [],
+                    userRemoteConfigs: [[credentialsId: 'mlops', url: 'https://github.com/QuXiangjie/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo.git']])
             }
         }
         stage('Lint Code') {
             steps {
                 echo 'Skipping lint stage'
-                // Lint code
+                // 如需开启Lint，取消注释并确保环境有python相关工具
                 // script {
                 //     echo 'Linting Python Code...'
                 //     sh "python -m pip install --break-system-packages -r requirements.txt"
@@ -41,28 +40,24 @@ pipeline {
                 }
             }
         }
-
         stage('Trivy FS Scan') {
             steps {
-                // Trivy Filesystem Scan
                 script {
-                    echo 'Scannning Filesystem with Trivy...'
+                    echo 'Scanning Filesystem with Trivy...'
                     sh "trivy fs ./ --format table -o trivy-fs-report.html"
                 }
             }
         }
         stage('Build Docker Image') {
             steps {
-                // Build Docker Image
                 script {
                     echo 'Building Docker Image...'
-                    dockerImage = docker.build("${DOCKERHUB_REPOSITORY}:latest") 
+                    dockerImage = docker.build("${DOCKERHUB_REPOSITORY}:latest")
                 }
             }
         }
         stage('Trivy Docker Image Scan') {
             steps {
-                // Trivy Docker Image Scan
                 script {
                     echo 'Scanning Docker Image with Trivy...'
                     sh "trivy image ${DOCKERHUB_REPOSITORY}:latest --format table -o trivy-image-report.html"
@@ -71,10 +66,9 @@ pipeline {
         }
         stage('Push Docker Image') {
             steps {
-                // Push Docker Image to DockerHub
                 script {
                     echo 'Pushing Docker Image to DockerHub...'
-                    docker.withRegistry("${DOCKERHUB_REGISTRY}", "${DOCKERHUB_CREDENTIAL_ID}"){
+                    docker.withRegistry("${DOCKERHUB_REGISTRY}", "${DOCKERHUB_CREDENTIAL_ID}") {
                         dockerImage.push('latest')
                     }
                 }
@@ -82,12 +76,11 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                // Deploy Image to Amazon ECS
                 script {
                     echo 'Deploying to production...'
-                        sh "aws ecs update-service --cluster iquant-ecs --service iquant-ecs-svc --force-new-deployment"
-                    }
+                    sh "aws ecs update-service --cluster iquant-ecs --service iquant-ecs-svc --force-new-deployment"
                 }
             }
         }
     }
+}
