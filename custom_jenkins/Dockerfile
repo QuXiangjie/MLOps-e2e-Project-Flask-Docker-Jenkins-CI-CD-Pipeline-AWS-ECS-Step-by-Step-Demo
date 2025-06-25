@@ -5,8 +5,11 @@ FROM jenkins/jenkins:lts
 # Install Docker
 USER root
 
-RUN apt-get update && apt-get install -y python3 python3-pip
-RUN pip3 install --upgrade pip pytest
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip \
+    ca-certificates \
+    libssl-dev \
+    && apt-get clean
 # 安装 trivy awscli docker 等你需要的工具
 
 # RUN apt-get update -y && \
@@ -32,14 +35,26 @@ RUN apt-get update && \
     groupadd -f docker && \
     usermod -aG docker jenkins && \
     rm -rf /var/lib/apt/lists/*
+# Install Trivy for vulnerability scanning
+# Trivy is a simple and comprehensive vulnerability scanner for containers and other artifacts.
+RUN apt-get update && apt-get install -y wget apt-transport-https gnupg lsb-release \
+ && wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor -o /usr/share/keyrings/trivy.gpg \
+ && echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/trivy.list \
+ && apt-get update && apt-get install -y trivy \
+ && rm -rf /var/lib/apt/lists/*
 
 
 
-# RUN usermod -aG docker jenkins
-# Configure Docker to run as a non-root user
+# Install AWS CLI
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+ && apt-get update && apt-get install -y unzip \
+ && unzip awscliv2.zip \
+ && ./aws/install \
+ && rm -rf awscliv2.zip aws \
+ && rm -rf /var/lib/apt/lists/*
 
-# Adding jenkins user to the docker group allows Jenkins to run Docker commands
-# The docker group is a Linux user group that controls who can run Docker commands
+# Switch back to jenkins user
+USER jenkins
 
 
 
