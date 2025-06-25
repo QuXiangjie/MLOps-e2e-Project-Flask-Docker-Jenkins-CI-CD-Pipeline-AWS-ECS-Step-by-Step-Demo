@@ -17,6 +17,7 @@ pipeline {
         }
         stage('Lint Code') {
             steps {
+                echo 'Skipping lint stage'
                 // Lint code
                 // script {
                 //     echo 'Linting Python Code...'
