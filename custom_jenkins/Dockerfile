@@ -68,3 +68,7 @@ VOLUME /var/lib/docker
 
 # To check the initial admin password, you can run the following command:
 # docker exec jenkins-dind cat /var/jenkins_home/secrets/initialAdminPassword
+
+#docker exec -it jenkins-dind bash
+#/# ls
+#ln -s /usr/bin/python3 /usr/bin/python
