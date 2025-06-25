@@ -32,10 +32,11 @@ pipeline {
                 script {
                     echo 'Testing Python Code...'
                     sh '''
-                        python -m pip install --upgrade pip
-                        python -m pip install -r requirements.txt
-                        python -m pip install pytest
+                        python -m pip install --upgrade pip --break-system-packages
+                        python -m pip install -r requirements.txt --break-system-packages
+                        python -m pip install pytest --break-system-packages
                         pytest tests/
+
                     '''
                 }
             }
