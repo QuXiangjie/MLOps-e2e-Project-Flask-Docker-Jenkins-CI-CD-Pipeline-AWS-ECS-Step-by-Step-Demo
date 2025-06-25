@@ -53,21 +53,26 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
  && rm -rf awscliv2.zip aws \
  && rm -rf /var/lib/apt/lists/*
 
-# Switch back to jenkins user
-USER jenkins
-
-
-
-
 # Enable DinD
 # In CI/CD pipelines, Docker in Docker (DinD) is often used to build and run Docker containers within a Jenkins job.
-# When running DinD insde a container, you need a directory for Docker to store its data.
-RUN mkdir -p /var/lib/docker
+# When running DinD inside a container, you need a directory for Docker to store its data.
+# Create the directory as root user before switching to jenkins user
+RUN mkdir -p /var/lib/docker && \
+    chown jenkins:jenkins /var/lib/docker && \
+    ln -s /usr/bin/python3 /usr/bin/python
+
+# Ensure jenkins user owns the jenkins home directory
+RUN mkdir -p /var/jenkins_home && \
+    chown jenkins:jenkins /var/jenkins_home
+
+# Switch back to jenkins user
+USER jenkins
 
 # By marking /var/lib/docker as a volume, Docker stores its data outside the container’s writable layer.
 # Also, this directory is often declared as a volume (VOLUME /var/lib/docker) so the data persists beyond the life of the container.
 VOLUME /var/lib/docker
 
+# Build and run instructions:
 # docker build -t jenkins-dind .
 # docker run -d \
 #   --name jenkins-dind \
@@ -78,6 +83,14 @@ VOLUME /var/lib/docker
 #   -v jenkins_home:/var/jenkins_home \
 #   jenkins-dind
 #docker run -d --name jenkins-dind -p 8080:8080 -p 50000:50000 --privileged -v /var/run/docker.sock:/var/run/docker.sock -v jenkins_home:/var/jenkins_home jenkins-dind
+# docker run -d `
+#   --name jenkins-dind `
+#   -p 8080:8080 `
+#   -p 50000:50000 `
+#   --privileged `
+#   -v /var/run/docker.sock:/var/run/docker.sock `
+#   -v jenkins_home:/var/jenkins_home `
+#   jenkins-dind
 
 
 
@@ -85,9 +98,5 @@ VOLUME /var/lib/docker
 # Check if Docker container is running
 
 
-# To check the initial admin password, you can run the following command:
+# To check the initial admin password:
 # docker exec jenkins-dind cat /var/jenkins_home/secrets/initialAdminPassword
-
-#docker exec -it jenkins-dind bash
-#/# ls
-#ln -s /usr/bin/python3 /usr/bin/python
