@@ -5,6 +5,10 @@ FROM jenkins/jenkins:lts
 # Install Docker
 USER root
 
+RUN apt-get update && apt-get install -y python3 python3-pip
+RUN pip3 install --upgrade pip pytest
+# 安装 trivy awscli docker 等你需要的工具
+
 # RUN apt-get update -y && \
 #     apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common && \
 #     curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
