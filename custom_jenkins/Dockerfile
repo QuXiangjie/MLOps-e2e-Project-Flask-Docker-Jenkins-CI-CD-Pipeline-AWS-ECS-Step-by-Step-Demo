@@ -10,6 +10,7 @@ RUN apt-get update && \
         gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
     echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
+    apt-get install -y python3-pip && \
     apt-get install -y docker-ce-cli python3 && \
     ln -sf /usr/bin/python3 /usr/bin/python
 
@@ -33,3 +34,6 @@ VOLUME /var/lib/docker
 # So everytime I change the Dockerfile, I need to rebuild the image and run the container again
 # docker build -t custom_jenkins:0.0.1 .
 # docker run -d --name custom_jenkins -p 8080:8080 -p 50000:50000 --privileged -v /var/run/docker.sock:/var/run/docker.sock -v jenkins_home:/var/jenkins_home custom_jenkins:0.0.1
+
+# How to get the initial admin password
+# docker exec -it custom_jenkins cat /var/jenkins_home/secrets/initialAdminPassword

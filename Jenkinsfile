@@ -21,7 +21,12 @@ pipeline {
                 // Lint code
                 script {
                     echo 'Linting Python Code...'
+                    sh '''
+                    python --version
+                    python3 --version
+                    python -m pip install -r requirements.txt
                     
+                    '''
                 }
             }
         }
