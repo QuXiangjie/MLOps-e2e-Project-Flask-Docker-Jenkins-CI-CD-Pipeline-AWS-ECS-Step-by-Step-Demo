@@ -24,7 +24,7 @@ pipeline {
                     sh '''
                     python --version
                     python3 --version
-                    python -m pip install -r requirements.txt
+                    python -m pip install --break-system-packages -r requirements.txt
                     
                     '''
                 }
