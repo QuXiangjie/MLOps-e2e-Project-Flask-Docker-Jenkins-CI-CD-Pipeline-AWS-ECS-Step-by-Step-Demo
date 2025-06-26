@@ -13,7 +13,8 @@ RUN apt-get update && \
     apt-get install -y python3-pip && \
     apt-get install -y docker-ce-cli python3 && \
     ln -sf /usr/bin/python3 /usr/bin/python
-
+# Install trivy for vulnerability scanning
+RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.41.0
 
 # Configure Docker to run as a non-root user
 # Create docker group and add jenkins user to it
