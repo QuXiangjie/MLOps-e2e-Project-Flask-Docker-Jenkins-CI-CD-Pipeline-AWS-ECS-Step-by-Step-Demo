@@ -10,7 +10,9 @@ RUN apt-get update && \
         gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
     echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
-    apt-get install -y docker-ce-cli
+    apt-get install -y docker-ce-cli python3 && \
+    ln -sf /usr/bin/python3 /usr/bin/python
+
 
 # Configure Docker to run as a non-root user
 # Create docker group and add jenkins user to it
@@ -20,3 +22,10 @@ RUN groupadd -f docker && \
 # Enable Docker-in-Docker (DinD)
 RUN mkdir -p /var/lib/docker
 VOLUME /var/lib/docker
+
+
+# docker build -t custom_jenkins:latest .
+# docker run -d --name custom_jenkins -p 8080:8080 -p 50000:50000 --privileged -v /var/run/docker.sock:/var/run/docker.sock -v jenkins_home:/var/jenkins_home jenkins-dind
+# docker exec -it custom_jenkins bash
+# ls
+# apt update -y
