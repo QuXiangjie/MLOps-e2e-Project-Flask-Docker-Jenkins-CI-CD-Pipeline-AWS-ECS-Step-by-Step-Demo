@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIAL_ID = 'Token-Docker Hub'
+        DOCKERHUB_CREDENTIAL_ID = 'mlops-jenkins-dockerhub-token'
         DOCKERHUB_REGISTRY = 'https://registry.hub.docker.com'
         DOCKERHUB_REPOSITORY = 'jqupitsco/test-mlops-project'
     }
@@ -21,6 +21,7 @@ pipeline {
                 // Lint code
                 script {
                     echo 'Linting Python Code...'
+                    echo 'okay...'
                     sh '''
                     python --version
                     python3 --version
