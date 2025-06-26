@@ -29,3 +29,7 @@ VOLUME /var/lib/docker
 # docker exec -it custom_jenkins bash
 # ls
 # apt update -y
+
+# So everytime I change the Dockerfile, I need to rebuild the image and run the container again
+# docker build -t custom_jenkins:0.0.1 .
+# docker run -d --name custom_jenkins -p 8080:8080 -p 50000:50000 --privileged -v /var/run/docker.sock:/var/run/docker.sock -v jenkins_home:/var/jenkins_home custom_jenkins:0.0.1

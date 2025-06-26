@@ -10,8 +10,9 @@ pipeline {
             steps {
                 // Clone Repository
                 script {
-                    echo 'Cloning GitHub Repository...'
-                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'mlops-git-token', url: 'https://github.com/iQuantC/MLOps01.git']])
+                    checkout scmGit(branches: [[name: '*/sandbox']], 
+                    extensions: [], 
+                    userRemoteConfigs: [[credentialsId: 'QuXiangjie', url: 'https://github.com/QuXiangjie/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo.git']])
                 }
             }
         }
