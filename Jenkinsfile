@@ -36,12 +36,16 @@ pipeline {
         }
         stage('Test Code') {
             steps {
-                // Pytest code
                 script {
                     echo 'Testing Python Code...'
-                    
+                    sh '''
+                        python train.py
+                        # Run tests and generate report
+                        pytest tests/
+                    '''
                 }
             }
+       
         }
         stage('Trivy FS Scan') {
             steps {
