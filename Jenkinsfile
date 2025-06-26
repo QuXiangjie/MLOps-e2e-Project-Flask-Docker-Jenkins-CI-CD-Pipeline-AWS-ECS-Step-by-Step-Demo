@@ -62,6 +62,7 @@ pipeline {
                 script {
                     echo 'Building Docker Image...'
                     
+                    docker.build("mlop-app-v0.0.2")
                 }
             }
         }

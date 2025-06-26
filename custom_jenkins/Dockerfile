@@ -38,3 +38,7 @@ VOLUME /var/lib/docker
 
 # How to get the initial admin password
 # docker exec -it custom_jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+
+# For the plugin installation, you can use the following command:
+# Download Docker and Docker Pipeline plugins
