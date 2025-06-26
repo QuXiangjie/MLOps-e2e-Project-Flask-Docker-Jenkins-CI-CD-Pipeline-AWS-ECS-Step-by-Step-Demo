@@ -61,7 +61,6 @@ pipeline {
                 // Build Docker Image
                 script {
                     echo 'Building Docker Image...'
-                    
                     docker.build("mlop-app-v0.0.2")
                 }
             }
@@ -71,7 +70,7 @@ pipeline {
                 // Trivy Docker Image Scan
                 script {
                     echo 'Scanning Docker Image with Trivy...'
-                   
+                   sh "trivy image --format table -o trivy-image-report.txt --exit-code 0 mlop-app-v0.0.2"
                 }
             }
         }
