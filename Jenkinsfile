@@ -1,6 +1,6 @@
 pipeline {
-    agent { label 'docker'
-    }
+    agent any
+    
     environment {
         DOCKERHUB_CREDENTIAL_ID = 'mlops-jenkins-dockerhub-token'
         DOCKERHUB_REGISTRY = 'https://registry.hub.docker.com'
