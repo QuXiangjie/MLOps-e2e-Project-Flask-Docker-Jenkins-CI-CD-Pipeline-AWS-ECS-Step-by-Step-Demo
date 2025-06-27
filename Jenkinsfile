@@ -102,7 +102,7 @@ pipeline {
                             --cluster magnificent-parrot-4ikbfl \
                             --service ECS-Task-Test-service-qtne3pdf \
                             --force-new-deployment \
-                            --region us-east-1
+                            --region us-east-2
                         '''
                     }
                 }
