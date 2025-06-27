@@ -15,6 +15,12 @@ RUN apt-get update && \
     ln -sf /usr/bin/python3 /usr/bin/python
 # Install trivy for vulnerability scanning
 RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.41.0
+# curl, unzip, sudo
+RUN apt-get install -y curl unzip sudo
+# add Amazon CLI repository
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
 
 # Configure Docker to run as a non-root user
 # Create docker group and add jenkins user to it
