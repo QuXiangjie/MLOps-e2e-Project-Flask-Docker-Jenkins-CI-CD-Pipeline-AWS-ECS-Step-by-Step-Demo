@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     environment {
         DOCKERHUB_CREDENTIAL_ID = 'mlops-jenkins-dockerhub-token'
         DOCKERHUB_REGISTRY = 'https://registry.hub.docker.com'
@@ -93,7 +93,18 @@ pipeline {
                 // Deploy Image to Amazon ECS
                 script {
                     echo 'Deploying to production...'
-                    sh " aws ecs update-service --cluster magnificent-parrot-4ikbfl --service ECS-Task-Test-service-qtne3pdf --force-new-deployment --region us-east-1"
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'mlops-awscred'
+                    ]]) {
+                        sh '''
+                            aws ecs update-service \
+                            --cluster magnificent-parrot-4ikbfl \
+                            --service ECS-Task-Test-service-qtne3pdf \
+                            --force-new-deployment \
+                            --region us-east-1
+                        '''
+                    }
                 }
             }
         }
