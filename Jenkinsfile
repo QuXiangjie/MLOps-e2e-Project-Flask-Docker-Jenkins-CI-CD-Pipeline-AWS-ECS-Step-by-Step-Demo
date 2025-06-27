@@ -63,6 +63,8 @@ pipeline {
                 // Build Docker Image
                 script {
                     echo 'Building Docker Image...'
+                    sh 'pwd'
+                    sh 'ls -la'
                     dockerImage = docker.build("${DOCKERHUB_REPOSITORY}:latest")
                 }
             }
