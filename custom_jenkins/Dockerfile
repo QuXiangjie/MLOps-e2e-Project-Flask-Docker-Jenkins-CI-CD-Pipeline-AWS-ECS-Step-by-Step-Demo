@@ -23,7 +23,6 @@ RUN unzip awscliv2.zip
 RUN ./aws/install
 
 # Configure Docker to run as a non-root user
-# Create docker group and add jenkins user to it
 RUN groupadd -f docker && \
     usermod -aG docker jenkins
 
