@@ -32,12 +32,18 @@ ENV PATH="/opt/venv_Test/bin:$PATH"
 
 # Install Trivy for vulnerability scanning
 RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.41.0
-
 # Install AWS CLI
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
-    ./aws/install && \
-    rm -rf awscliv2.zip aws
+# For Linux
+#RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    #unzip awscliv2.zip && \
+    #./aws/install && \
+    #rm -rf awscliv2.zip aws
+
+# For macOS (if needed, but not typically used in Dockerfiles)
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip && \
+        ./aws/install
+
 
 # Configure Docker to run as a non-root user
 RUN groupadd -f docker && \

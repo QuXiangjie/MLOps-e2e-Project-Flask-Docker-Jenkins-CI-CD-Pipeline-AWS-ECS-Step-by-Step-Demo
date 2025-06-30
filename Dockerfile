@@ -10,6 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Copy only the requirements file 
+
 COPY requirements.txt requirements.txt
 
 # Install required packages but do not store cache files to reduce image size
