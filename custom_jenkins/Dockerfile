@@ -3,7 +3,7 @@ FROM jenkins/jenkins:lts
 
 # Switch to root user for installation
 USER root
-
+COPY /requirements.txt /tmp/requirements.txt
 # Install required system tools and dependencies
 RUN apt-get update && \
     apt-get install -y \
@@ -23,7 +23,9 @@ RUN apt-get update && \
 # Create a Python virtual environment (venv_Test) and install Python packages
 RUN python3 -m venv /opt/venv_Test && \
     /opt/venv_Test/bin/pip install --upgrade pip && \
-    /opt/venv_Test/bin/pip install pylint flake8 black
+    /opt/venv_Test/bin/pip install pylint flake8 black scikit-learn && \
+    /opt/venv_Test/bin/pip install -r /tmp/requirements.txt
+   
 
 # Add the virtual environment to PATH
 ENV PATH="/opt/venv_Test/bin:$PATH"
