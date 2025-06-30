@@ -1,12 +1,11 @@
 import pickle
 import os
 from flask import Flask, request, render_template
-import mysql.connector
-from mysql.connector import Error
-from dotenv import load_dotenv
+import os  # ✅ 标准库：用于获取环境变量
+import mysql.connector  # ✅ 第三方库：用于连接 MySQL
+from mysql.connector import Error  # ✅ 第三方库：用于处理连接错误
 
-# Load environment variables from a .env file
-load_dotenv()
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -25,7 +24,7 @@ def test_database_connection():
     try:
         # Get database credentials from environment variables
         host = os.getenv("DB_HOST")
-        port = os.getenv("DB_PORT")
+        port = int(os.getenv("DB_PORT"))
         user = os.getenv("DB_USER")
         password = os.getenv("DB_PASSWORD")
         database = os.getenv("DB_NAME")
@@ -50,8 +49,7 @@ def test_database_connection():
 # Home route to display the form and database connection status
 @app.route("/")
 def home():
-    db_status = test_database_connection()
-    return render_template("index.html", db_status=db_status)
+    return render_template("index.html")
 
 # Prediction route to handle form submissions
 @app.route("/predict", methods=["POST"])
@@ -66,7 +64,11 @@ def predict():
     return render_template(
         "index.html", prediction_text=f"Predicted Iris Class: {prediction}"
     )
-
+# Route to test database connection
+@app.route("/test-db-connection", methods=["GET"])
+def test_db_connection():
+    db_status = test_database_connection()
+    return {"status": db_status}, 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

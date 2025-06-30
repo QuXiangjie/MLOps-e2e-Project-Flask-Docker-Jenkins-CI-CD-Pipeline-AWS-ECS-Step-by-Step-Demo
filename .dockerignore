@@ -1,1 +1,4 @@
 custom_jenkins/
+
+#Ignore the .env file
+.env

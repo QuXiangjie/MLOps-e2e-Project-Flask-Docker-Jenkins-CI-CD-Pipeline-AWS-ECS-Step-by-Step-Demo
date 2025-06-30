@@ -4,15 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iris Prediction</title>
+    <script>
+        async function checkDatabaseConnection() {
+            try {
+                const response = await fetch('/test-db-connection');
+                const data = await response.json();
+                document.getElementById('db-status').innerText = data.status;
+            } catch (error) {
+                document.getElementById('db-status').innerText = "Error: Unable to connect to the server.";
+            }
+        }
+    </script>
 </head>
 <body>
     <h1>Predict the Iris Flower Class</h1>
       <!-- Display database connection status -->
       <div>
         <h3>Database Status:</h3>
-        <p>{{ db_status }}</p>
+        <p id="db-status">Click the button to check database connection.</p>
+        <button onclick="checkDatabaseConnection()">Test Database Connection</button>
     </div>
-    
+
     <form action="/predict" method="POST">
         <label for="sepal_length">Sepal Length:</label>
         <input type="text" id="sepal_length" name="sepal_length" required><br>

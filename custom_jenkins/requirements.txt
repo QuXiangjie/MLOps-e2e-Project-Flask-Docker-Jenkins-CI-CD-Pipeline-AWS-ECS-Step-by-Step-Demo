@@ -4,3 +4,6 @@ pytest
 numpy
 pylint
 flake8
+mysql-connector-python
+python-dotenv
+apache-airflow
