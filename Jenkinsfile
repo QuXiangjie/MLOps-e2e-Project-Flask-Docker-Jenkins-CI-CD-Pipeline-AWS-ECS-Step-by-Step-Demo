@@ -24,12 +24,9 @@ pipeline {
                     echo 'Linting Python Code...'
                     echo 'okay...'
                     sh '''
-                    python --version
-                    python3 --version
-                    python -m pip install --break-system-packages -r requirements.txt
-                    pylint app.py train.py --output=pylint-report.txt --exit-zero
-                    flake8 app.py train.py --ignore=E501,E302 --output-file=flake8-report.txt
-                    black app.py train.py
+                     pylint app.py train.py --output=pylint-report.txt --exit-zero
+                     flake8 app.py train.py --ignore=E501,E302 --output-file=flake8-report.txt
+                     black app.py train.py
 
 
                     '''
