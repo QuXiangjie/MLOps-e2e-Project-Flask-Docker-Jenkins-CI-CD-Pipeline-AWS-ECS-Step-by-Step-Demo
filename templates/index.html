@@ -7,6 +7,12 @@
 </head>
 <body>
     <h1>Predict the Iris Flower Class</h1>
+      <!-- Display database connection status -->
+      <div>
+        <h3>Database Status:</h3>
+        <p>{{ db_status }}</p>
+    </div>
+    
     <form action="/predict" method="POST">
         <label for="sepal_length">Sepal Length:</label>
         <input type="text" id="sepal_length" name="sepal_length" required><br>

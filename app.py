@@ -1,6 +1,12 @@
 import pickle
 import os
 from flask import Flask, request, render_template
+import mysql.connector
+from mysql.connector import Error
+from dotenv import load_dotenv
+
+# Load environment variables from a .env file
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -14,11 +20,38 @@ if not os.path.exists(MODEL_PATH):
 with open(MODEL_PATH, "rb") as f:
     model = pickle.load(f)
 
-# Home route to display the form
+# Function to test database connection
+def test_database_connection():
+    try:
+        # Get database credentials from environment variables
+        host = os.getenv("DB_HOST")
+        port = os.getenv("DB_PORT")
+        user = os.getenv("DB_USER")
+        password = os.getenv("DB_PASSWORD")
+        database = os.getenv("DB_NAME")
+
+        # Connect to the database
+        connection = mysql.connector.connect(
+            host=host,
+            port=port,
+            user=user,
+            password=password,
+            database=database
+        )
+
+        if connection.is_connected():
+            return "Database connection successful!"
+    except Error as e:
+        return f"Error while connecting to the database: {e}"
+    finally:
+        if 'connection' in locals() and connection.is_connected():
+            connection.close()
+
+# Home route to display the form and database connection status
 @app.route("/")
 def home():
-    return render_template("index.html")
-
+    db_status = test_database_connection()
+    return render_template("index.html", db_status=db_status)
 
 # Prediction route to handle form submissions
 @app.route("/predict", methods=["POST"])
