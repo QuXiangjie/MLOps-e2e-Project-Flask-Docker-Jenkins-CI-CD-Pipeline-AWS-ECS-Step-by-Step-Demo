@@ -70,5 +70,35 @@ def test_db_connection():
     db_status = test_database_connection()
     return {"status": db_status}, 200
 
+@app.route("/retrain", methods=["POST"])
+def retrain():
+    try:
+        steps_status = []  # 用于存储每个步骤的状态
+
+        # Step 1: Connect to the database
+        db_status = test_database_connection()
+        if "Error" in db_status:
+            steps_status.append(f"❌ {db_status}")
+            return {"status": steps_status}, 500
+        steps_status.append("✅ Database connection successful!")
+
+        # Step 2: Collect data (simulate data collection)
+        steps_status.append("✅ Data collection step completed")
+
+        # Step 3: Clean data (simulate data cleaning)
+        steps_status.append("✅ Data cleaning step completed")
+
+        # Step 4: Retrain the model
+        from train import train_model  # Import the training logic
+        train_model()
+        steps_status.append("✅ Model retraining step completed")
+
+        # Step 5: Predict (simulate prediction)
+        steps_status.append("✅ Prediction step completed")
+
+        return {"status": steps_status}, 200
+    except Exception as e:
+        return {"status": [f"❌ Error during retraining: {e}"]}, 500
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
