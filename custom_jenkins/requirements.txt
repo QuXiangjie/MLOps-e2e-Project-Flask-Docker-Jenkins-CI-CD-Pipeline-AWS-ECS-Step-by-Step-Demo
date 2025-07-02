@@ -1,9 +1,0 @@
-flask
-scikit-learn
-pytest
-numpy
-pylint
-flake8
-mysql-connector-python
-python-dotenv
-apache-airflow==2.7.2

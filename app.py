@@ -1,16 +1,17 @@
 import pickle
 import os
-from flask import Flask, request, render_template
-import os  # ✅ 标准库：用于获取环境变量
-import mysql.connector  # ✅ 第三方库：用于连接 MySQL
-from mysql.connector import Error  # ✅ 第三方库：用于处理连接错误
-
+import streamlit as st
+import mysql.connector
+from mysql.connector import Error
 from dotenv import load_dotenv
 
-app = Flask(__name__)
+
+# Load environment variables
+load_dotenv()
 
 # Load the model
-MODEL_PATH = "model/iris_model.pkl"
+MODEL_PATH = "/opt/airflow/data/iris_model.pkl"
+
 if not os.path.exists(MODEL_PATH):
     raise Exception(
         "Model file not found. Make sure to train the model by running 'train.py'."
@@ -19,23 +20,18 @@ if not os.path.exists(MODEL_PATH):
 with open(MODEL_PATH, "rb") as f:
     model = pickle.load(f)
 
+# Provide default values for environment variables if they are not set
+host = os.getenv("DB_HOST", "localhost")
+port = int(os.getenv("DB_PORT", 3306))  # Default to 3306 if not set
+user = os.getenv("DB_USER", "root")
+password = os.getenv("DB_PASSWORD", "")
+database = os.getenv("DB_NAME", "test")
+
 # Function to test database connection
 def test_database_connection():
     try:
-        # Get database credentials from environment variables
-        host = os.getenv("DB_HOST")
-        port = int(os.getenv("DB_PORT"))
-        user = os.getenv("DB_USER")
-        password = os.getenv("DB_PASSWORD")
-        database = os.getenv("DB_NAME")
-
-        # Connect to the database
         connection = mysql.connector.connect(
-            host=host,
-            port=port,
-            user=user,
-            password=password,
-            database=database
+            host=host, port=port, user=user, password=password, database=database
         )
 
         if connection.is_connected():
@@ -43,62 +39,35 @@ def test_database_connection():
     except Error as e:
         return f"Error while connecting to the database: {e}"
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if "connection" in locals() and connection.is_connected():
             connection.close()
 
-# Home route to display the form and database connection status
-@app.route("/")
-def home():
-    return render_template("index.html")
+# Streamlit UI
+st.title("Iris Prediction and Model Retraining")
 
-# Prediction route to handle form submissions
-@app.route("/predict", methods=["POST"])
-def predict():
-    # Get the input features from the form
-    features = [float(x) for x in request.form.values()]
-
-    # Make a prediction using the model
-    prediction = model.predict([features])[0]
-
-    # Display the prediction on the same page
-    return render_template(
-        "index.html", prediction_text=f"Predicted Iris Class: {prediction}"
-    )
-# Route to test database connection
-@app.route("/test-db-connection", methods=["GET"])
-def test_db_connection():
+# Section: Test Database Connection
+st.header("Database Connection")
+if st.button("Test Database Connection"):
     db_status = test_database_connection()
-    return {"status": db_status}, 200
+    st.write(db_status)
 
-@app.route("/retrain", methods=["POST"])
-def retrain():
+
+# Section: Predict Iris Class
+st.header("Predict Iris Class")
+sepal_length = st.text_input("Sepal Length")
+sepal_width = st.text_input("Sepal Width")
+petal_length = st.text_input("Petal Length")
+petal_width = st.text_input("Petal Width")
+
+if st.button("Predict"):
     try:
-        steps_status = []  # 用于存储每个步骤的状态
-
-        # Step 1: Connect to the database
-        db_status = test_database_connection()
-        if "Error" in db_status:
-            steps_status.append(f"❌ {db_status}")
-            return {"status": steps_status}, 500
-        steps_status.append("✅ Database connection successful!")
-
-        # Step 2: Collect data (simulate data collection)
-        steps_status.append("✅ Data collection step completed")
-
-        # Step 3: Clean data (simulate data cleaning)
-        steps_status.append("✅ Data cleaning step completed")
-
-        # Step 4: Retrain the model
-        from train import train_model  # Import the training logic
-        train_model()
-        steps_status.append("✅ Model retraining step completed")
-
-        # Step 5: Predict (simulate prediction)
-        steps_status.append("✅ Prediction step completed")
-
-        return {"status": steps_status}, 200
+        features = [
+            float(sepal_length),
+            float(sepal_width),
+            float(petal_length),
+            float(petal_width),
+        ]
+        prediction = model.predict([features])[0]
+        st.success(f"Predicted Iris Class: {prediction}")
     except Exception as e:
-        return {"status": [f"❌ Error during retraining: {e}"]}, 500
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+        st.error(f"Error: {e}")

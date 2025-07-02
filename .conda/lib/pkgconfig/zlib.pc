@@ -1,0 +1,13 @@
+prefix=/Users/jackqu/Desktop/Data Analysis/Python/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo/.conda
+exec_prefix=/Users/jackqu/Desktop/Data Analysis/Python/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo/.conda
+libdir=/Users/jackqu/Desktop/Data Analysis/Python/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo/.conda/lib
+sharedlibdir=/Users/jackqu/Desktop/Data Analysis/Python/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo/.conda/lib
+includedir=/Users/jackqu/Desktop/Data Analysis/Python/MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo/.conda/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.13
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}
