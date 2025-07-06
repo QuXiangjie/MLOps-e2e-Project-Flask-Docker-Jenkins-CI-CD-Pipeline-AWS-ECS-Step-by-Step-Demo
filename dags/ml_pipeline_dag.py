@@ -32,7 +32,7 @@ dag = DAG(
     'iris_model_pipeline',
     default_args=default_args,
     description='A simple ML pipeline with MySQL',
-    schedule_interval=None,
+    schedule_interval='*/2 * * * *',  # Run every 2 minutes
     catchup=False
 )
 
