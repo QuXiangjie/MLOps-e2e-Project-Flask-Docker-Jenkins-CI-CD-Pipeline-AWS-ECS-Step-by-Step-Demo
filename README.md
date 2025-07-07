@@ -127,4 +127,21 @@
 
 ---
 
+# Project Structure Diagram
+
+```
+MLOps-e2e-Project-Flask-Docker-Jenkins-CI-CD-Pipeline-AWS-ECS-Step-by-Step-Demo
+├── app.py                # Main application file for Streamlit and database logic
+├── Dockerfile            # Dockerfile for containerizing the project
+├── entrypoint.sh         # Entrypoint script for initializing Airflow and Streamlit
+├── README.md             # Project documentation
+├── requirements.txt      # Python dependencies for the project
+├── test_mysql_connection.ipynb  # Jupyter Notebook for testing MySQL database connection
+├── train.py              # Script for training the machine learning model
+├── dags/                 # Folder containing Airflow DAGs
+│   └── ml_pipeline_dag.py  # Airflow DAG for the machine learning pipeline
+```
+
+This structure provides an overview of the project's organization and the purpose of each file and folder.
+
 Let me know if you need further clarification or adjustments to the deployment process!
