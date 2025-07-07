@@ -1,21 +1,61 @@
 # Project Structure Diagram
 
+The core of this test project is the use of **Apache Airflow**, an open-source workflow orchestration platform, to automate the entire machine learning pipeline — from data collection and cleaning, to training and prediction — on a scheduled basis. The project is fully deployed through **Docker → ECR → ECS**, with **S3** used for storing trained models and **RDS** for storing both Airflow metadata and prediction results. Additionally, **Streamlit** is integrated as a lightweight frontend tool for testing RDS connectivity and validating model predictions through a user-friendly interface.
+
+
+
 ```
 Machine Learning Engineering Project in Pitsco: Airflow-Flask-Docker-AWS-ECS-S3 and RDS
-├── app.py                # Main application file for Streamlit front End
-├── Dockerfile            # Dockerfile for containerizing the project
-├── entrypoint.sh         # Entrypoint script for initializing Airflow and Streamlit
+├── (4)app.py                # Main application file for Streamlit front End
+├── (1)Dockerfile            # Dockerfile for containerizing the project
+├── (3)entrypoint.sh         # Entrypoint script for initializing Airflow and Streamlit
 ├── README.md             # Project documentation
-├── requirements.txt      # Python dependencies for the project in the Dockerfile
-├── test_mysql_connection.ipynb  # Jupyter Notebook for testing MySQL database connection
-├── train.py              # Test script for training the machine learning model
-├── dags/                 # Folder containing Airflow DAGs
+├── (2)requirements.txt      # Python dependencies for the project in the Dockerfile
+├── (Test Purpose)test_mysql_connection.ipynb  # Jupyter Notebook for testing MySQL database connection
+├── (1)train.py              # Test script for training the machine learning model
+├── (5)dags/                 # Folder containing Airflow DAGs
 │   └── ml_pipeline_dag.py  # Airflow DAG for the machine learning pipeline
 ```
 
-This structure provides an overview of the project's organization and the purpose of each file and folder.
+This structure outlines the project organization and the purpose of each file and folder.
 
 ---
+
+## Data Flow and Execution Overview
+
+### (0) Deployment Phase
+
+- The **Dockerfile** exposes two ports:
+  - `8501` for the Streamlit frontend (used for database testing and model prediction).
+  - `8080` for the Airflow Web UI (used for DAG monitoring and administration).
+- It installs all Python dependencies via `requirements.txt`.
+- A sample model is trained using `train.py` during the Docker build phase, ensuring Streamlit can load a model on first launch.
+- The container entrypoint (`entrypoint.sh`) is triggered to start both Airflow and Streamlit.
+
+### (1) Airflow DAG Execution (`ml_pipeline_dag.py`)
+
+The DAG is scheduled to run **every 2 minutes** for testing. It automates the following tasks:
+
+- **Task 1: Connect to Database**
+  - Establishes a connection to an RDS MySQL instance using environment variables.
+  - Simulates access to real-world PA (proposal analytics) data.
+
+- **Task 2: Clean Data**
+  - Preprocesses the Iris dataset.
+  - Does not rely on external data sources, ensuring isolated operation.
+
+- **Task 3: Train Model**
+  - Trains a logistic regression model.
+  - Uploads the serialized `.pkl` model to an S3 bucket for persistent storage and reuse.
+
+- **Task 4: Predict**
+  - Loads the model and performs predictions.
+  - Writes results into the same RDS database into a new table called `predictions`.
+
+This design enables **Power BI** to automatically refresh and visualize prediction results by connecting directly to the RDS MySQL database, eliminating the need for additional gateways or configurations.
+
+---
+
 
 # Project Overview for IT Department
 
@@ -23,24 +63,67 @@ This structure provides an overview of the project's organization and the purpos
 
 ### Files
 - **`app.py`**
-  - Main application file for Streamlit Front End and database logic.
+  - Main application file for Streamlit Front End and database connections test.
   - Provides a user-friendly interface for administrators to test database connections and run predictions.
 ![alt text](Pictures/image.png)
-- **`Dockerfile`**
-  - Defines the containerization process for the project.
-  - Includes steps to install dependencies, train the model, and run the application.
 
-- **`entrypoint.sh`**
-  - Entrypoint script for initializing services like Airflow and Streamlit when the container starts.
+- **`Dockerfile`**  
+  Defines the containerization workflow for the project. It includes the following steps:
+
+  - **Base Image**:  
+    Uses a lightweight `python:3.9-slim-bullseye` image to ensure compatibility with Apache Airflow.
+
+  - **Environment Configuration**:  
+    Sets environment variables to:
+    - Prevent `.pyc` files from being written
+    - Enable unbuffered Python output for better logging
+    - Disable pip cache and frontend interaction
+
+  - **System Dependencies**:  
+    Installs essential Linux packages:
+    - `build-essential`
+    - `default-libmysqlclient-dev`
+    - `libssl-dev`, `libffi-dev`, and `pkg-config`  
+    These are required for database connectivity and secure communication.
+
+  - **Python Dependencies**:  
+    Installs required Python packages listed in `requirements.txt` using pip.
+
+  - **Working Directory Setup**:  
+    Sets `/app` as the working directory and creates `/opt/airflow/data` to temporarily store model files and prediction outputs inside the container.
+
+  - **Model Initialization**:  
+    Executes `train.py` during the build process to generate an initial machine learning model. This is used by Streamlit for demo and testing purposes.
+
+  - **Entrypoint Script**:  
+    Copies `entrypoint.sh` and grants execution permission. This script initializes Airflow (scheduler + webserver) and starts Streamlit.
+
+  - **Port Exposure**:  
+    Exposes the following ports:
+    - `8501` for the **Streamlit Front End**
+    - `8080` for the **Airflow Web UI**
+
+- **`entrypoint.sh`**  
+  Startup script that initializes key services when the container launches. It ensures that both **Apache Airflow** and the **Streamlit UI** are started correctly in the background.
+
+  - ✅ Starts the **Airflow webserver**, binding it to `0.0.0.0:8080` so it is accessible externally:
+    ```bash
+    airflow webserver --port 8080 --host 0.0.0.0 &
+    ```
+
+  - ✅ Starts the **Streamlit frontend**, also binding to `0.0.0.0:8501` for external access:
+    ```bash
+    streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+    ```
 
 - **`requirements.txt`**
   - Lists all Python dependencies required for the project.
 
-- **`test_mysql_connection.ipynb`**
+- **`test_mysql_connection.ipynb（Not Important,Test Purpose)`**
   - Jupyter Notebook for testing MySQL database connectivity.
   - Includes steps to load environment variables, connect to the database, and execute queries.
 
-- **`train.py`**
+- **`train.py(Not Important, Test Purpose)`**
   - Script for training a machine learning model.
   - Saves the trained model to a specified path for later use.
 
