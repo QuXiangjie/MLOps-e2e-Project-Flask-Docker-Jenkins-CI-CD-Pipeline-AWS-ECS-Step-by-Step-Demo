@@ -4,17 +4,34 @@ import streamlit as st
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
+import boto3
 
 
 # Load environment variables
 load_dotenv()
 
-# Load the model
-MODEL_PATH = "/opt/airflow/data/iris_model.pkl"
+# Define S3 bucket and model path
+S3_BUCKET = os.getenv("S3_BUCKET", "default-bucket-name")
+S3_KEY = os.getenv("S3_KEY", "models/iris_model.pkl")
 
+
+# Function to download model from S3
+def download_model_from_s3(bucket, key, local_path):
+    s3 = boto3.client("s3")
+    try:
+        s3.download_file(bucket, key, local_path)
+        print(f"✅ Model downloaded from S3: {local_path}")
+    except Exception as e:
+        print(f"❌ Failed to download model from S3: {e}")
+
+# Download the model from S3
+MODEL_PATH = "/opt/airflow/data/iris_model.pkl"
+download_model_from_s3(S3_BUCKET, S3_KEY, MODEL_PATH)
+
+# Load the model
 if not os.path.exists(MODEL_PATH):
     raise Exception(
-        "Model file not found. Make sure to train the model by running 'train.py'."
+        "Model file not found. Make sure to train the model and upload it to S3."
     )
 
 with open(MODEL_PATH, "rb") as f:
