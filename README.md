@@ -1,7 +1,8 @@
 # Project Structure Diagram
 
 The core of this test project is the use of **Apache Airflow**, an open-source workflow orchestration platform, to automate the entire machine learning pipeline — from data collection and cleaning, to training and prediction — on a scheduled basis. The project is fully deployed through **Docker → ECR → ECS**, with **S3** used for storing trained models and **RDS** for storing both Airflow metadata and prediction results. Additionally, **Streamlit** is integrated as a lightweight frontend tool for testing RDS connectivity and validating model predictions through a user-friendly interface.
-
+![alt text](image.png)
+![alt text](image-1.png)
 
 
 ```
@@ -21,6 +22,41 @@ This structure outlines the project organization and the purpose of each file an
 
 ---
 
+## Request for IT Department
+
+### **User and Role Assignment**
+- Assign me a user account within the company’s AWS account.
+- Grant the following permissions:
+
+  - **ECR**: Permission to push and pull Docker images.
+  - **ECS**: Permission to create and manage tasks and services.  
+    _Recommended policy_: `AmazonECSTaskExecutionRolePolicy`  
+    ![ECS Permission](Pictures/image-ECS.png)
+
+  - **S3**: Read and write access to the model storage bucket.  
+    _Recommended policy_: `AmazonS3FullAccess`  
+    ![S3 Access](Pictures/image-1.png)
+
+  - **RDS**: Access to both the Airflow metadata database and the prediction results database.  
+    _Credential management recommendation_: Use **Secrets Manager** (with a customer-managed inline policy).  
+
+    1. This is applicable if the project stores database credentials in Secrets Manager.  
+    2. The database user must have permission to:
+       - Create two tables (for prediction results and Airflow metadata).
+       - Read existing tables from the database (for training data collection).  
+       ![RDS Permissions](Pictures/image-2.png)
+
+    3. The RDS security group should:
+       - Allow inbound access from the **same security group** (for ECS service communication).
+       - Optionally allow inbound access on port **80** from `0.0.0.0/0` for external access to Streamlit (mapped to port `8501`).
+       - Allow ports **8080** and **8501** to be accessed by the same security group (internal ECS networking).
+       - Temporarily open **ports 8080 and 3306** to `0.0.0.0/0` for browser-based testing (not recommended for production).  
+       ![Security Group Settings](Pictures/image-3.png)
+
+
+  
+---
+
 ## Data Flow and Execution Overview
 
 ### (0) Deployment Phase - (0,1,2,3,4)
@@ -28,9 +64,10 @@ This structure outlines the project organization and the purpose of each file an
 - The **Dockerfile** exposes two ports:
   - `8501` for the Streamlit frontend (used for database testing and model prediction).
   - `8080` for the Airflow Web UI (used for DAG monitoring and administration).
+  - A sample model is trained using `train.py` during the Docker build phase, ensuring Streamlit can load a model on first launch unitl the Airflow DAG Execution.
 - It installs all Python dependencies via `requirements.txt`.
-- A sample model is trained using `train.py` during the Docker build phase, ensuring Streamlit can load a model on first launch.
 - The container entrypoint (`entrypoint.sh`) is triggered to start both Airflow and Streamlit.
+- `app.py` is the configuration file for Streamlit to set up Database Connection and Model Functionality testing
 
 ### (1) Airflow DAG Execution (`ml_pipeline_dag.py`) - (5)
 
@@ -57,87 +94,6 @@ This design enables **Power BI** to automatically refresh and visualize predicti
 ---
 
 
-# Project Overview for IT Department
-
-## Project Structure
-
-### Files
-- **`app.py`**
-  - Main application file for Streamlit Front End and database connections test.
-  - Provides a user-friendly interface for administrators to test database connections and run predictions.
-![alt text](Pictures/image.png)
-
-- **`Dockerfile`**  
-  Defines the containerization workflow for the project. It includes the following steps:
-
-  - **Base Image**:  
-    Uses a lightweight `python:3.9-slim-bullseye` image to ensure compatibility with Apache Airflow.
-
-  - **Environment Configuration**:  
-    Sets environment variables to:
-    - Prevent `.pyc` files from being written
-    - Enable unbuffered Python output for better logging
-    - Disable pip cache and frontend interaction
-
-  - **System Dependencies**:  
-    Installs essential Linux packages:
-    - `build-essential`
-    - `default-libmysqlclient-dev`
-    - `libssl-dev`, `libffi-dev`, and `pkg-config`  
-    These are required for database connectivity and secure communication.
-
-  - **Python Dependencies**:  
-    Installs required Python packages listed in `requirements.txt` using pip.
-
-  - **Working Directory Setup**:  
-    Sets `/app` as the working directory and creates `/opt/airflow/data` to temporarily store model files and prediction outputs inside the container.
-
-  - **Model Initialization**:  
-    Executes `train.py` during the build process to generate an initial machine learning model. This is used by Streamlit for demo and testing purposes.
-
-  - **Entrypoint Script**:  
-    Copies `entrypoint.sh` and grants execution permission. This script initializes Airflow (scheduler + webserver) and starts Streamlit.
-
-  - **Port Exposure**:  
-    Exposes the following ports:
-    - `8501` for the **Streamlit Front End**
-    - `8080` for the **Airflow Web UI**
-
-- **`entrypoint.sh`**  
-  Startup script that initializes key services when the container launches. It ensures that both **Apache Airflow** and the **Streamlit UI** are started correctly in the background.
-
-  - ✅ Starts the **Airflow webserver**, binding it to `0.0.0.0:8080` so it is accessible externally:
-    ```bash
-    airflow webserver --port 8080 --host 0.0.0.0 &
-    ```
-
-  - ✅ Starts the **Streamlit frontend**, also binding to `0.0.0.0:8501` for external access:
-    ```bash
-    streamlit run app.py --server.port=8501 --server.address=0.0.0.0
-    ```
-
-- **`requirements.txt`**
-  - Lists all Python dependencies required for the project.
-
-- **`test_mysql_connection.ipynb（Not Important,Test Purpose)`**
-  - Jupyter Notebook for testing MySQL database connectivity.
-  - Includes steps to load environment variables, connect to the database, and execute queries.
-
-- **`train.py(Not Important, Test Purpose)`**
-  - Script for training a machine learning model.
-  - Saves the trained model to a specified path for later use.
-
-- **`.dockerignore`**
-  - Ensures sensitive files like `.env` are excluded from the Docker image.
-
-### Subdirectories
-
-#### `dags/`
-- Contains Airflow DAGs for orchestrating machine learning pipelines.
-- **`ml_pipeline_dag.py`**
-  - Defines an Airflow DAG for managing the machine learning pipeline tasks.
-
----
 
 ## Tools Used
 
@@ -170,7 +126,6 @@ This design enables **Power BI** to automatically refresh and visualize predicti
 
 #### **Secrets Manager**
 - Securely stores sensitive information like database credentials.
-- Ensures credentials are not hardcoded in the application.
 
 #### **IAM (Identity and Access Management)**
 - Manages permissions for AWS resources.
@@ -213,18 +168,5 @@ This design enables **Power BI** to automatically refresh and visualize predicti
 ### **Step 5: Use Secrets Manager**
 1. Store database credentials in Secrets Manager.
 2. Attach a policy to the IAM role for accessing Secrets Manager.
-
----
-
-## Request for IT Department
-
-### **User and Role Assignment**
-- Assign me a user account in the company’s AWS account.
-- Grant the following permissions:
-  - **ECR**: Push and pull Docker images.
-  - **ECS**: Create and manage tasks and services.
-  - **S3**: Read and write access to the model bucket.
-  - **RDS**: Access to the Airflow and prediction databases.
-  - **Secrets Manager**: Access to stored credentials.
 
 ---
