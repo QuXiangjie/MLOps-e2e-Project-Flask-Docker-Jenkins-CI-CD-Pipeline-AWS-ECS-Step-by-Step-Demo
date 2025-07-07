@@ -12,5 +12,5 @@ pandas
 streamlit
 joblib
 boto3
-apache-airflow[mysql]
+
 

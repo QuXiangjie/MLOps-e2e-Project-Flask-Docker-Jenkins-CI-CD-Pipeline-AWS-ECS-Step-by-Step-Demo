@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Use ECS-injected variables to build the SQL Alchemy connection string
-export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN="mysql+mysqlconnector://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+#export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN="mysql+mysqlconnector://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
 
 # Set default Airflow environment variables
 export AIRFLOW__WEBSERVER__DEFAULT_USER=admin

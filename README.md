@@ -1,8 +1,6 @@
-# Project Structure
+# Project Overview for IT Department
 
-This document provides an overview of the project structure and the purpose of each file and folder.
-
-## Root Directory
+## Project Structure
 
 ### Files
 - **`app.py`**
@@ -30,25 +28,103 @@ This document provides an overview of the project structure and the purpose of e
 - **`.dockerignore`**
   - Ensures sensitive files like `.env` are excluded from the Docker image.
 
-## Subdirectories
+### Subdirectories
 
-### `dags/`
+#### `dags/`
 - Contains Airflow DAGs for orchestrating machine learning pipelines.
 - **`ml_pipeline_dag.py`**
   - Defines an Airflow DAG for managing the machine learning pipeline tasks.
 
 ---
 
-## Key Features
-- **Containerization**: The project is fully containerized using Docker, with a clear `Dockerfile` and `entrypoint.sh`.
-- **Task Orchestration**: Airflow is used to manage and schedule machine learning pipeline tasks.
-- **Database Integration**: Includes functionality to connect to a MySQL database for data retrieval and processing.
-- **Model Training**: A dedicated script (`train.py`) handles model training and saving.
-- **Testing**: A Jupyter Notebook (`test_mysql_connection.ipynb`) is provided for testing database connectivity.
+## Tools Used
+
+### **Airflow**
+- Used for orchestrating machine learning pipelines.
+- DAGs are defined to automate tasks like data cleaning, model training, and predictions.
+
+### **Docker**
+- Containerizes the application for consistent deployment.
+- The `Dockerfile` ensures all dependencies are installed and the application is ready to run.
+
+### **AWS Services**
+
+#### **ECR (Elastic Container Registry)**
+- Stores Docker images for deployment.
+- Images are pushed to ECR and pulled by ECS for running tasks.
+
+#### **ECS (Elastic Container Service)**
+- Runs containerized tasks and services.
+- Used to deploy the application and manage its lifecycle.
+
+#### **S3 (Simple Storage Service)**
+- Stores trained machine learning models.
+- Models are uploaded to S3 after training and downloaded for predictions.
+
+#### **RDS (Relational Database Service)**
+- Two databases are used:
+  - **Airflow Database**: Stores Airflow metadata.
+  - **Prediction Database**: Stores prediction results.
+
+#### **Secrets Manager**
+- Securely stores sensitive information like database credentials.
+- Ensures credentials are not hardcoded in the application.
+
+#### **IAM (Identity and Access Management)**
+- Manages permissions for AWS resources.
+- Roles and policies are assigned to ECS tasks and users.
 
 ---
 
-## Notes
-- Ensure the `.env` file is properly configured with database credentials and other environment variables.
-- Use the `.dockerignore` file to exclude sensitive files from the Docker image.
-- Follow the instructions in the `Dockerfile` and `entrypoint.sh` for building and running the containerized application.
+## Deployment Process
+
+### **Step 1: Push Docker Image to ECR**
+1. Build the Docker image:
+   ```bash
+   docker build -t airflow-dags-project .
+   ```
+2. Tag the image:
+   ```bash
+   docker tag airflow-dags-project:latest <account-id>.dkr.ecr.<region>.amazonaws.com/airflow-dags-project:latest
+   ```
+3. Push the image to ECR:
+   ```bash
+   docker push <account-id>.dkr.ecr.<region>.amazonaws.com/airflow-dags-project:latest
+   ```
+
+### **Step 2: Deploy to ECS**
+1. Create an ECS cluster.
+2. Define a task with the ECR image and required environment variables.
+3. Attach an IAM role to the task for accessing S3, RDS, and Secrets Manager.
+4. Create a service to run the task and ensure high availability.
+
+### **Step 3: Configure S3**
+1. Create an S3 bucket for storing models.
+2. Attach a policy to the IAM role for accessing the bucket.
+
+### **Step 4: Set Up RDS**
+1. Create two RDS instances:
+   - One for Airflow metadata.
+   - One for storing prediction results.
+2. Configure security groups to allow access from ECS tasks.
+
+### **Step 5: Use Secrets Manager**
+1. Store database credentials in Secrets Manager.
+2. Attach a policy to the IAM role for accessing Secrets Manager.
+
+---
+
+## Request for IT Department
+
+### **User and Role Assignment**
+- Assign me a user account in the company’s AWS account.
+- Grant the following permissions:
+  - **ECR**: Push and pull Docker images.
+  - **ECS**: Create and manage tasks and services.
+  - **S3**: Read and write access to the model bucket.
+  - **RDS**: Access to the Airflow and prediction databases.
+  - **Secrets Manager**: Access to stored credentials.
+
+---
+
+Let me know if you need further clarification or adjustments to the deployment process!
