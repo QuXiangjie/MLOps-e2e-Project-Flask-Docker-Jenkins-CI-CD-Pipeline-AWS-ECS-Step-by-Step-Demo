@@ -23,7 +23,7 @@ This structure outlines the project organization and the purpose of each file an
 
 ## Data Flow and Execution Overview
 
-### (0) Deployment Phase
+### (0) Deployment Phase - (0,1,2,3,4)
 
 - The **Dockerfile** exposes two ports:
   - `8501` for the Streamlit frontend (used for database testing and model prediction).
@@ -32,7 +32,7 @@ This structure outlines the project organization and the purpose of each file an
 - A sample model is trained using `train.py` during the Docker build phase, ensuring Streamlit can load a model on first launch.
 - The container entrypoint (`entrypoint.sh`) is triggered to start both Airflow and Streamlit.
 
-### (1) Airflow DAG Execution (`ml_pipeline_dag.py`)
+### (1) Airflow DAG Execution (`ml_pipeline_dag.py`) - (5)
 
 The DAG is scheduled to run **every 2 minutes** for testing. It automates the following tasks:
 
