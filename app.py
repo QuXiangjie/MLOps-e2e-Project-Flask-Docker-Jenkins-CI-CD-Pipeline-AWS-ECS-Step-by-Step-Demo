@@ -5,37 +5,12 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 import boto3
-
+import joblib
 
 # Load environment variables
 load_dotenv()
 
-# Define S3 bucket and model path
-S3_BUCKET = os.getenv("S3_BUCKET", "default-bucket-name")
-S3_KEY = os.getenv("S3_KEY", "models/iris_model.pkl")
 
-
-# Function to download model from S3
-def download_model_from_s3(bucket, key, local_path):
-    s3 = boto3.client("s3")
-    try:
-        s3.download_file(bucket, key, local_path)
-        print(f"✅ Model downloaded from S3: {local_path}")
-    except Exception as e:
-        print(f"❌ Failed to download model from S3: {e}")
-
-# Download the model from S3
-MODEL_PATH = "/opt/airflow/data/iris_model.pkl"
-download_model_from_s3(S3_BUCKET, S3_KEY, MODEL_PATH)
-
-# Load the model
-if not os.path.exists(MODEL_PATH):
-    raise Exception(
-        "Model file not found. Make sure to train the model and upload it to S3."
-    )
-
-with open(MODEL_PATH, "rb") as f:
-    model = pickle.load(f)
 
 # Provide default values for environment variables if they are not set
 host = os.getenv("DB_HOST", "localhost")
@@ -59,6 +34,31 @@ def test_database_connection():
         if "connection" in locals() and connection.is_connected():
             connection.close()
 
+# Define S3 bucket and model path
+S3_BUCKET = os.getenv("S3_BUCKET")
+S3_KEY = os.getenv("S3_KEY")
+MODEL_PATH = "/opt/airflow/data/iris_model.pkl"
+
+# Function to download model from S3
+def download_model_from_s3(bucket, key, local_path):
+    s3 = boto3.client("s3")
+    try:
+        s3.download_file(bucket, key, local_path)
+        print(f"✅ Model downloaded from S3: {local_path}")
+    except Exception as e:
+        print(f"❌ Failed to download model from S3: {e}")
+
+download_model_from_s3(S3_BUCKET, S3_KEY, MODEL_PATH)
+
+# Load the model
+if not os.path.exists(MODEL_PATH):
+    raise Exception(
+        "Model file not found. Make sure to train the model and upload it to S3."
+    )
+
+model = joblib.load(MODEL_PATH)
+print("✅ Model loaded successfully")
+
 # Streamlit UI
 st.title("Iris Prediction and Model Retraining")
 
@@ -67,7 +67,6 @@ st.header("Database Connection")
 if st.button("Test Database Connection"):
     db_status = test_database_connection()
     st.write(db_status)
-
 
 # Section: Predict Iris Class
 st.header("Predict Iris Class")

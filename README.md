@@ -23,9 +23,9 @@ This structure provides an overview of the project's organization and the purpos
 
 ### Files
 - **`app.py`**
-  - Main application file for Streamlit and database logic.
-  - Implements the user interface and handles database connections and predictions.
-
+  - Main application file for Streamlit Front End and database logic.
+  - Provides a user-friendly interface for administrators to test database connections and run predictions.
+![alt text](Pictures/image.png)
 - **`Dockerfile`**
   - Defines the containerization process for the project.
   - Includes steps to install dependencies, train the model, and run the application.
