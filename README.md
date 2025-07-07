@@ -3,8 +3,7 @@
 The core of this test project is the use of **Apache Airflow**, an open-source workflow orchestration platform, to automate the entire machine learning pipeline — from data collection and cleaning, to training and prediction — on a scheduled basis. The project is fully deployed through **Docker → ECR → ECS**, with **S3** used for storing trained models and **RDS** for storing both Airflow metadata and prediction results. Additionally, **Streamlit** is integrated as a lightweight frontend tool for testing RDS connectivity and validating model predictions through a user-friendly interface.
 ![alt text](image.png)
 ![alt text](image-1.png)
-![alt text](image.png)
-![alt text](image-1.png)
+
 
 
 ```
